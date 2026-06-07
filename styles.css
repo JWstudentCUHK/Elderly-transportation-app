@@ -1,0 +1,575 @@
+/* General Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg-color: #fffae6; /* Light yellow background */
+    --text-color: #000000; /* Black text */
+    --card-bg: #ffffff;
+    --primary-color: #000000;
+    --secondary-color: #4a4a4a;
+    --accent-color: #e6b800; /* Darker yellow for highlights */
+    --warning-color: #ff0000;
+    --font-size-base: 20px;
+    --font-size-large: 28px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    font-size: var(--font-size-base);
+    padding-bottom: 50px;
+}
+
+/* Theme Classes */
+body.theme-extra-large {
+    font-size: var(--font-size-large);
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    background-color: var(--accent-color);
+    padding: 20px 0;
+    border-bottom: 4px solid var(--primary-color);
+    margin-bottom: 20px;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+h1 {
+    font-size: 1.8em;
+    font-weight: 800;
+}
+
+/* Card Interface */
+.card {
+    background-color: var(--card-bg);
+    border: 4px solid var(--primary-color);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.large-select, .large-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2em;
+    border: 3px solid var(--primary-color);
+    border-radius: 10px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.suggestions-box {
+    position: absolute;
+    top: 100%; /* 這會使其出現在 .search-container 的下方 */
+    left: 0;
+    right: 0;
+    background: white;
+    border: 3px solid var(--primary-color);
+    border-top: none;
+    z-index: 2000; /* 提高 z-index 確保在最上層 */
+    max-height: 250px;
+    overflow-y: auto;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3); /* 加強陰影 */
+}
+
+/* 確保輸入框和建議框緊貼 */
+.large-input {
+    position: relative;
+    z-index: 5;
+}
+
+.suggestion-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    font-size: 1.1em;
+}
+
+.suggestion-item:hover {
+    background-color: #fff9c4;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+/* Comparison Cards */
+.comparison-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mode-card {
+    border: 3px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 15px;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.mode-card.cheapest {
+    border-color: #2e7d32;
+    background-color: #f1f8e9;
+    box-shadow: 4px 4px 0px rgba(46, 125, 50, 0.2);
+}
+
+.mode-card.fastest {
+    border-color: #1976d2;
+    background-color: #e3f2fd;
+    box-shadow: 4px 4px 0px rgba(25, 118, 210, 0.2);
+}
+
+.itinerary-steps-text {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    font-size: 0.95em;
+    color: #333;
+    line-height: 1.5;
+    width: 100%;
+}
+
+.route-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #ddd;
+}
+
+.route-step:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.step-icon {
+    font-size: 1.3em;
+    min-width: 28px;
+    text-align: center;
+    background: #eee;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mode-card.selected .itinerary-steps-text {
+    background: #fff;
+    border-color: #ffccbc;
+}
+
+.mode-card.selected {
+    border-color: #ff5722 !important;
+    background-color: #fff3e0 !important;
+}
+
+.route-badge {
+    position: absolute;
+    top: -15px;
+    right: 15px;
+    background: #000;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.mode-card.cheapest .route-badge {
+    background: #2e7d32;
+}
+
+.mode-card.fastest .route-badge {
+    background: #1976d2;
+}
+
+.walk-time-info {
+    color: #666;
+    margin-top: 5px;
+}
+
+.walk-time-info small {
+    font-size: 0.85em;
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.mode-details {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.mode-fare {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.mode-fare .price {
+    font-size: 1.8em;
+    font-weight: 900;
+    color: #d32f2f;
+    line-height: 1;
+}
+
+.mode-fare .original-price {
+    font-size: 0.75em;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.concession-label {
+    font-size: 0.65em;
+    font-weight: bold;
+    color: #d32f2f;
+    background: #ffebee;
+    padding: 2px 4px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 2px;
+}
+
+/* Step-by-Step Layout */
+.itinerary-steps {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #ccc;
+    width: 100%;
+}
+
+.step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 0.95em;
+}
+
+.step-icon {
+    font-size: 1.2em;
+    min-width: 25px;
+    text-align: center;
+}
+
+.step-content {
+    flex: 1;
+}
+
+body.theme-extra-large .step-item {
+    font-size: 1.1em;
+}
+
+.mode-card {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.mode-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Theme adjustments for suggestions */
+body.theme-extra-large .suggestion-item {
+    font-size: 1.4em;
+    padding: 20px;
+}
+
+body.theme-extra-large .mode-card h3 {
+    font-size: 1.4em;
+}
+
+body.theme-extra-large .price {
+    font-size: 2.2em;
+}
+
+/* Toggle Switch Styles */
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    border: 2px solid #eee;
+}
+
+.toggle-label {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #d32f2f;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #d32f2f;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Buttons */
+button {
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 10px;
+    transition: transform 0.1s;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 20px 40px;
+    font-size: 1.3em;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.btn-secondary {
+    background-color: #fff;
+    color: var(--primary-color);
+    border: 3px solid var(--primary-color);
+    padding: 15px 30px;
+    font-size: 1.1em;
+    width: 100%;
+}
+
+.btn-toggle {
+    background: #000;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 1.2em;
+}
+
+.btn-accent {
+    background-color: #ffcc00;
+    color: #000;
+    border: 3px solid #000;
+    padding: 15px;
+    font-size: 1.1em;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-icon {
+    background: none;
+    border: 3px solid var(--primary-color);
+    padding: 10px 20px;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-small {
+    margin-top: 10px;
+    padding: 8px 15px;
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+}
+
+/* Result Section */
+.result-card {
+    background-color: #fffde7;
+    border-color: #e6b800;
+}
+
+.mode-card {
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.mode-card:hover {
+    background-color: #f5f5f5;
+}
+
+.mode-card:active {
+    transform: scale(0.99);
+}
+
+.mode-card.selected {
+    border-color: var(--accent-color);
+    background-color: #fff9c4;
+}
+
+.highlight {
+    font-size: 2em;
+    color: #d32f2f;
+    font-weight: 900;
+}
+
+.fare-display {
+    margin-top: 15px;
+    padding: 15px;
+    background: #fff;
+    border: 2px dashed #000;
+}
+
+/* Warning Box */
+.warning-box {
+    background-color: var(--warning-color);
+    color: #fff;
+    padding: 20px;
+    font-weight: bold;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 4px solid #000;
+}
+
+/* ETA Badges */
+.eta-container {
+    margin-top: 20px;
+    border-top: 2px solid #ccc;
+    padding-top: 15px;
+}
+
+.eta-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.eta-badge {
+    background: #000;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* Utilities */
+.hidden {
+    display: none !important;
+}
+
+footer {
+    text-align: center;
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 40px;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.4em;
+    }
+}

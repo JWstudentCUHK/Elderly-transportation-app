@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>座標傳遞測試</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-case { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>座標傳遞測試</h1>
+    <p>這個頁面用於測試座標從 API → HTML → JavaScript 的傳遞過程。</p>
+    
+    <div class="test-case">
+        <h3>測試 1: 模擬 API 返回有效座標</h3>
+        <p>模擬 API 返回天盛苑的有效座標 (22.4567, 114.1234)</p>
+        <button onclick="testValidCoordinates()">測試有效座標</button>
+        <div id="test1-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>測試 2: 模擬 API 返回無效座標 (0, 0)</h3>
+        <p>模擬 API 返回座標為 0 的情況</p>
+        <button onclick="testInvalidCoordinates()">測試無效座標</button>
+        <div id="test2-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>測試 3: 檢查 geocodeLocation 邏輯</h3>
+        <p>測試 geocodeLocation 函式如何處理預選座標</p>
+        <button onclick="testGeocodeLogic()">測試地理編碼邏輯</button>
+        <div id="test3-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>Console 輸出</h3>
+        <p>請打開瀏覽器的開發者工具 (F12) 查看詳細的 Console 日誌</p>
+        <pre id="console-output">Console 輸出將顯示在這裡...</pre>
+    </div>
+
+    <script>
+        // 模擬 console.log 以捕獲輸出
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        
+        const consoleOutput = document.getElementById('console-output');
+        let consoleBuffer = [];
+        
+        function captureConsole(method, args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            consoleBuffer.push(`[${timestamp}] ${method.toUpperCase()}: ${message}`);
+            if (consoleBuffer.length > 20) consoleBuffer.shift();
+            consoleOutput.textContent = consoleBuffer.join('\n');
+            
+            // 同時輸出到真實的 console
+            if (method === 'log') originalConsoleLog.apply(console, args);
+            if (method === 'error') originalConsoleError.apply(console, args);
+            if (method === 'warn') originalConsoleWarn.apply(console, args);
+        }
+        
+        console.log = (...args) => captureConsole('log', args);
+        console.error = (...args) => captureConsole('error', args);
+        console.warn = (...args) => captureConsole('warn', args);
+        
+        // 測試函式
+        function testValidCoordinates() {
+            console.log('🔍 [TEST] 測試有效座標傳遞');
+            
+            // 模擬點擊事件
+            const mockElement = {
+                getAttribute: function(attr) {
+                    if (attr === 'data-lat') return '22.4567';
+                    if (attr === 'data-lng') return '114.1234';
+                    if (attr === 'data-name') return '天盛苑, 香港';
+                    return null;
+                }
+            };
+            
+            const lat = mockElement.getAttribute('data-lat');
+            const lng = mockElement.getAttribute('data-lng');
+            const name = mockElement.getAttribute('data-name');
+            
+            console.log(`🔍 [TEST] 原始屬性: lat="${lat}", lng="${lng}", name="${name}"`);
+            
+            const parsedLat = parseFloat(lat);
+            const parsedLng = parseFloat(lng);
+            
+            console.log(`🔍 [TEST] 解析後座標: lat=${parsedLat}, lng=${parsedLng}`);
+            
+            if (isNaN(parsedLat) || isNaN(parsedLng) || parsedLat === 0 || parsedLng === 0) {
+                console.error(`❌ [TEST] 無效座標: ${lat}, ${lng}`);
+                document.getElementById('test1-result').innerHTML = 
+                    '<div class="error">測試失敗: 座標無效</div>';
+            } else {
+                console.log(`✅ [TEST] 有效座標: ${name} (${parsedLat}, ${parsedLng})`);
+                document.getElementById('test1-result').innerHTML = 
+                    '<div class="success">測試成功: 座標有效</div>';
+            }
+        }
+        
+        function testInvalidCoordinates() {
+            console.log('🔍 [TEST] 測試無效座標處理');
+            
+            // 模擬點擊事件，座標為 0
+            const mockElement = {
+                getAttribute: function(attr) {
+                    if (attr === 'data-lat') return '0';
+                    if (attr === 'data-lng') return '0';
+                    if (attr === 'data-name') return '天盛苑, 香港';
+                    return null;
+                }
+            };
+            
+            const lat = mockElement.getAttribute('data-lat');
+            const lng = mockElement.getAttribute('data-lng');
+            const name = mockElement.getAttribute('data-name');
+            
+            console.log(`🔍 [TEST] 原始屬性: lat="${lat}", lng="${lng}", name="${name}"`);
+            
+            const parsedLat = parseFloat(lat);
+            const parsedLng = parseFloat(lng);
+            
+            console.log(`🔍 [TEST] 解析後座標: lat=${parsedLat}, lng=${parsedLng}`);
+            console.log(`🔍 [TEST] 驗證: isNaN(lat)=${isNaN(parsedLat)}, isNaN(lng)=${isNaN(parsedLng)}, lat===0=${parsedLat === 0}, lng===0=${parsedLng === 0}`);
+            
+            if (isNaN(parsedLat) || isNaN(parsedLng) || parsedLat === 0 || parsedLng === 0) {
+                console.error(`❌ [TEST] 無效座標: ${lat}, ${lng}`);
+                console.error(`❌ [TEST] 將不設置 dataset，讓 geocodeLocation 使用 API`);
+                document.getElementById('test2-result').innerHTML = 
+                    '<div class="success">測試成功: 正確檢測到無效座標，將使用 API 搜尋</div>';
+            } else {
+                console.error(`❌ [TEST] 錯誤: 應該檢測到無效座標但沒有`);
+                document.getElementById('test2-result').innerHTML = 
+                    '<div class="error">測試失敗: 應該檢測到無效座標</div>';
+            }
+        }
+        
+        function testGeocodeLogic() {
+            console.log('🔍 [TEST] 測試 geocodeLocation 邏輯');
+            
+            // 模擬 input element 的 dataset
+            const mockInputElement = {
+                dataset: {
+                    lat: '22.4567',
+                    lng: '114.1234',
+                    selectedName: '天盛苑, 香港'
+                }
+            };
+            
+            const text = '天盛苑';
+            
+            console.log(`🔍 [TEST] 檢查 dataset: lat="${mockInputElement.dataset.lat}", lng="${mockInputElement.dataset.lng}", selectedName="${mockInputElement.dataset.selectedName}"`);
+            
+            const hasSelectedCoordinates = mockInputElement && mockInputElement.dataset.lat && mockInputElement.dataset.lng;
+            const selectedName = mockInputElement?.dataset?.selectedName;
+            
+            console.log(`🔍 [TEST] hasSelectedCoordinates: ${hasSelectedCoordinates}`);
+            
+            if (hasSelectedCoordinates) {
+                const dLat = parseFloat(mockInputElement.dataset.lat);
+                const dLng = parseFloat(mockInputElement.dataset.lng);
+                
+                console.log(`🔍 [TEST] 解析座標: ${dLat}, ${dLng}`);
+                
+                const areCoordinatesValid = !isNaN(dLat) && !isNaN(dLng) && dLat !== 0 && dLng !== 0;
+                
+                if (!areCoordinatesValid) {
+                    console.warn(`⚠️ [TEST] 預選座標無效 (${dLat}, ${dLng})，將回退到 API`);
+                    document.getElementById('test3-result').innerHTML = 
+                        '<div class="error">測試: 座標無效，將使用 API</div>';
+                } else {
+                    // 檢查名稱匹配
+                    const isNameMatch = selectedName && (
+                        selectedName === text || 
+                        selectedName.includes(text) || 
+                        text.includes(selectedName) ||
+                        selectedName.split(',')[0].trim().includes(text) ||
+                        text.includes(selectedName.split(',')[0].trim())
+                    );
+                    
+                    if (isNameMatch) {
+                        console.log(`🎯 [TEST] 使用預選座標: ${text} (${dLat}, ${dLng})`);
+                        document.getElementById('test3-result').innerHTML = 
+                            '<div class="success">測試成功: 名稱匹配，使用預選座標</div>';
+                    } else {
+                        console.log(`⚠️ [TEST] 名稱不匹配: selectedName="${selectedName}", text="${text}"`);
+                        document.getElementById('test3-result').innerHTML = 
+                            '<div class="error">測試: 名稱不匹配，將使用 API</div>';
+                    }
+                }
+            } else {
+                console.log(`⚠️ [TEST] 未找到預選座標`);
+                document.getElementById('test3-result').innerHTML = 
+                    '<div class="error">測試: 未找到預選座標</div>';
+            }
+        }
+        
+        // 初始化
+        console.log('🚀 座標傳遞測試頁面已加載');
+        console.log('📝 請點擊上面的按鈕進行測試');
+    </script>
+</body>
+</html>

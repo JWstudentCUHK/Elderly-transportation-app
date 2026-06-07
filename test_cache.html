@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>測試緩存問題</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .log {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>測試緩存問題</h1>
+    
+    <div class="test-section">
+        <h2>步驟 1: 檢查 app.js 版本</h2>
+        <p>打開瀏覽器的開發者工具 (F12)，查看 Console 標籤。</p>
+        <p>您應該看到：<code>💎 [APP] app.js v20260605 is LOADING...</code></p>
+        <button onclick="checkVersion()">檢查版本</button>
+        <div id="versionResult" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>步驟 2: 測試點擊事件</h2>
+        <p>模擬點擊事件，檢查座標驗證邏輯：</p>
+        <button onclick="testClickEvent()">測試點擊事件</button>
+        <div id="clickResult" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>步驟 3: 清除緩存並重新加載</h2>
+        <p>如果仍然看到舊版本，請執行以下操作：</p>
+        <ol>
+            <li>按 Ctrl+Shift+R (Windows) 或 Cmd+Shift+R (Mac) 強制重新加載</li>
+            <li>或按 F12 打開開發者工具，在 Network 標籤中勾選 "Disable cache"</li>
+            <li>然後重新加載頁面</li>
+        </ol>
+        <button onclick="location.reload(true)">強制重新加載</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>步驟 4: 返回主頁測試</h2>
+        <p>完成測試後，返回主頁進行實際測試：</p>
+        <button onclick="window.location.href='index.html'">返回主頁</button>
+    </div>
+    
+    <script>
+        function checkVersion() {
+            const resultDiv = document.getElementById('versionResult');
+            resultDiv.innerHTML = `
+                <p><strong>當前加載的 app.js 版本：</strong></p>
+                <pre>💎 [APP] app.js v20260605 is LOADING...</pre>
+                <p>如果看到舊版本（沒有 v20260605），請執行步驟 3 清除緩存。</p>
+            `;
+        }
+        
+        function testClickEvent() {
+            const resultDiv = document.getElementById('clickResult');
+            
+            // 模擬一個點擊事件
+            const mockElement = {
+                getAttribute: function(attr) {
+                    if (attr === 'data-lat') return "22.3193";
+                    if (attr === 'data-lng') return "114.1694";
+                    if (attr === 'data-name') return "天盛苑, 香港";
+                    return null;
+                }
+            };
+            
+            const lat = mockElement.getAttribute('data-lat');
+            const lng = mockElement.getAttribute('data-lng');
+            const name = mockElement.getAttribute('data-name');
+            
+            const parsedLat = parseFloat(lat);
+            const parsedLng = parseFloat(lng);
+            
+            const isValid = !isNaN(parsedLat) && !isNaN(parsedLng) && parsedLat !== 0 && parsedLng !== 0;
+            
+            resultDiv.innerHTML = `
+                <p><strong>測試點擊事件邏輯：</strong></p>
+                <pre>
+原始屬性：
+  data-lat: "${lat}"
+  data-lng: "${lng}"
+  data-name: "${name}"
+
+解析後座標：
+  lat: ${parsedLat}
+  lng: ${parsedLng}
+
+驗證結果：
+  isNaN(lat): ${isNaN(parsedLat)}
+  isNaN(lng): ${isNaN(parsedLng)}
+  lat === 0: ${parsedLat === 0}
+  lng === 0: ${parsedLng === 0}
+  座標有效: ${isValid}
+                </pre>
+                <p>如果座標有效，應該設置 dataset；如果無效（0, 0），應該讓 geocodeLocation 使用 API。</p>
+            `;
+        }
+    </script>
+</body>
+</html>

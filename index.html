@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香港長者交通優惠計算器 - $2 乘車優惠</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-standard">
+    <header>
+        <div class="container">
+            <h1>長者交通優惠助手</h1>
+            <div class="header-actions">
+                <button id="fontSizeToggle" class="btn-toggle" aria-label="切換字體大小">
+                    [ AAA ]
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Warning Box for Ineligible Routes -->
+        <div id="warningBox" class="warning-box hidden">
+            ⚠️ 注意：此路線不適用於 $2 優惠計劃，需支付成人全費。
+        </div>
+
+        <section class="card">
+            <div class="input-group search-container">
+                <label for="fromSearch">起點 (輸入大廈、屋苑或地點):</label>
+                <input type="text" id="fromSearch" class="large-input" placeholder="輸入起點 (例如: 天水圍)" autocomplete="off">
+                <div id="fromSuggestions" class="suggestions-box hidden"></div>
+            </div>
+
+            <div class="input-group search-container">
+                <label for="toSearch">終點 (To)</label>
+                <input type="text" id="toSearch" class="large-input" placeholder="輸入終點 (例如: 中環)" autocomplete="off">
+                <div id="toSuggestions" class="suggestions-box hidden"></div>
+            </div>
+
+            <div class="toggle-row">
+                <label class="switch">
+                    <input type="checkbox" id="concessionToggle" checked>
+                    <span class="slider round"></span>
+                </label>
+                <span class="toggle-label">長者 / 樂悠咭 優惠 ($2 計劃)</span>
+            </div>
+
+            <div class="button-row">
+                <button id="calculateBtn" class="btn-primary" onclick="console.log('HTML onclick fired!')">搜尋最平路線</button>
+                <button id="takeMeHomeBtn" class="btn-secondary">帶我回家 (🏠)</button>
+            </div>
+        </section>
+
+        <section id="resultSection" class="card result-card hidden">
+            <h2>🏆 推薦路線比較</h2>
+            <div id="comparisonList" class="comparison-list">
+                <!-- Comparison cards will be injected here -->
+            </div>
+            
+            <div class="action-buttons">
+                <button id="speakBtn" class="btn-icon" aria-label="語音讀出結果">
+                    🔊 語音讀出最平方案
+                </button>
+            </div>
+        </section>
+
+        <!-- Map Container removed -->
+
+        <section class="card home-setting">
+            <label for="homeSearch">設定我的家 (預設地點):</label>
+            <input type="text" id="homeSearch" class="large-input" placeholder="輸入您的住址">
+            <button id="saveHomeBtn" class="btn-small">儲存為家</button>
+        </section>
+    </main>
+
+  <footer class="container">
+        <p>資料來源: MTR 港鐵公開數據 (DATA.GOV.HK)</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="app.js?v=20260605-fixed-zero-coordinates"></script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>座標傳遞修復測試</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .warning {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>座標傳遞修復測試</h1>
+    
+    <div class="test-case">
+        <h3>測試 1: 模擬 API 返回有效座標</h3>
+        <p>這個測試模擬 API 返回有效座標 (22.3193, 114.1694) 的情況。</p>
+        <button onclick="testValidCoordinates()">測試有效座標</button>
+        <div id="log1" class="log"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>測試 2: 模擬 API 返回無效座標 (0, 0)</h3>
+        <p>這個測試模擬 API 返回座標為 0 的情況，應該觸發過濾邏輯。</p>
+        <button onclick="testInvalidCoordinates()">測試無效座標</button>
+        <div id="log2" class="log"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>測試 3: 檢查 geocodeLocation 邏輯</h3>
+        <p>測試 geocodeLocation 函式中的座標檢查邏輯。</p>
+        <button onclick="testGeocodeLogic()">測試地理編碼邏輯</button>
+        <div id="log3" class="log"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>實際測試</h3>
+        <p>在實際頁面中測試：</p>
+        <ol>
+            <li>打開瀏覽器 Console (F12)</li>
+            <li>在搜尋框中輸入「天盛苑」</li>
+            <li>點擊建議列表中的項目</li>
+            <li>檢查 Console 日誌，應該看到詳細的除錯資訊</li>
+        </ol>
+        <p>預期的 Console 日誌：</p>
+        <ul>
+            <li>🔍 [AUTO] API returned X results for "天盛苑": [...]</li>
+            <li>🔍 [AUTO] After filtering: Y valid results</li>
+            <li>🔍 [AUTO] Rendering valid result: "天盛苑, 香港" with coordinates (..., ...)</li>
+            <li>🔍 [AUTO] Click event triggered for: "天盛苑, 香港"</li>
+            <li>🔍 [AUTO] Raw HTML attributes: data-lat="...", data-lng="..."</li>
+            <li>✅ [AUTO] Selected: {name: "天盛苑, 香港", lat: ..., lng: ...}</li>
+        </ul>
+    </div>
+
+    <script>
+        function logToElement(elementId, message, className = '') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span class="${className}">[${timestamp}] ${message}</span>`;
+            element.appendChild(logEntry);
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function testValidCoordinates() {
+            const logId = 'log1';
+            logToElement(logId, '開始測試有效座標...');
+            
+            // 模擬 API 返回有效座標
+            const mockApiResponse = [
+                {
+                    display_name: "天盛苑, 香港",
+                    lat: "22.3193",
+                    lon: "114.1694"
+                }
+            ];
+            
+            logToElement(logId, `模擬 API 返回 ${mockApiResponse.length} 個結果`);
+            
+            // 測試過濾邏輯
+            const validResults = mockApiResponse.filter(res => {
+                const lat = parseFloat(res.lat);
+                const lon = parseFloat(res.lon);
+                const isValid = !isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0;
+                
+                if (!isValid) {
+                    logToElement(logId, `⚠️ 過濾無效結果: "${res.display_name}" 座標 (${lat}, ${lon})`, 'warning');
+                }
+                
+                return isValid;
+            });
+            
+            logToElement(logId, `過濾後有效結果: ${validResults.length}`);
+            
+            if (validResults.length > 0) {
+                logToElement(logId, '✅ 測試通過：有效座標被正確保留', 'success');
+            } else {
+                logToElement(logId, '❌ 測試失敗：有效座標被錯誤過濾', 'error');
+            }
+        }
+
+        function testInvalidCoordinates() {
+            const logId = 'log2';
+            logToElement(logId, '開始測試無效座標...');
+            
+            // 模擬 API 返回無效座標
+            const mockApiResponse = [
+                {
+                    display_name: "天盛苑, 香港",
+                    lat: "0",
+                    lon: "0"
+                },
+                {
+                    display_name: "測試地點",
+                    lat: "22.5",
+                    lon: "114.1"
+                }
+            ];
+            
+            logToElement(logId, `模擬 API 返回 ${mockApiResponse.length} 個結果`);
+            
+            // 測試過濾邏輯
+            const validResults = mockApiResponse.filter(res => {
+                const lat = parseFloat(res.lat);
+                const lon = parseFloat(res.lon);
+                const isValid = !isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0;
+                
+                if (!isValid) {
+                    logToElement(logId, `⚠️ 過濾無效結果: "${res.display_name}" 原始 lat="${res.lat}", lon="${res.lon}", 解析 (${lat}, ${lon})`, 'warning');
+                }
+                
+                return isValid;
+            });
+            
+            logToElement(logId, `過濾後有效結果: ${validResults.length}`);
+            
+            if (validResults.length === 1) {
+                logToElement(logId, '✅ 測試通過：無效座標 (0, 0) 被正確過濾', 'success');
+            } else {
+                logToElement(logId, '❌ 測試失敗：無效座標沒有被正確過濾', 'error');
+            }
+        }
+
+        function testGeocodeLogic() {
+            const logId = 'log3';
+            logToElement(logId, '開始測試 geocodeLocation 邏輯...');
+            
+            // 模擬 dataset
+            const mockDataset = {
+                lat: "22.3193",
+                lng: "114.1694",
+                selectedName: "天盛苑, 香港"
+            };
+            
+            logToElement(logId, `模擬 dataset: lat="${mockDataset.lat}", lng="${mockDataset.lng}", selectedName="${mockDataset.selectedName}"`);
+            
+            // 測試座標解析
+            const dLat = parseFloat(mockDataset.lat);
+            const dLng = parseFloat(mockDataset.lng);
+            
+            logToElement(logId, `解析座標: ${dLat}, ${dLng}`);
+            
+            // 檢查座標是否有效
+            const areCoordinatesValid = !isNaN(dLat) && !isNaN(dLng) && dLat !== 0 && dLng !== 0;
+            
+            if (areCoordinatesValid) {
+                logToElement(logId, '✅ 座標有效', 'success');
+            } else {
+                logToElement(logId, '❌ 座標無效', 'error');
+            }
+            
+            // 測試名稱匹配
+            const text = "天盛苑";
+            const selectedName = mockDataset.selectedName;
+            const isNameMatch = selectedName && (
+                selectedName === text || 
+                selectedName.includes(text) || 
+                text.includes(selectedName) ||
+                selectedName.split(',')[0].trim().includes(text) ||
+                text.includes(selectedName.split(',')[0].trim())
+            );
+            
+            logToElement(logId, `名稱匹配測試: text="${text}", selectedName="${selectedName}", 匹配結果=${isNameMatch}`);
+            
+            if (isNameMatch) {
+                logToElement(logId, '✅ 名稱匹配成功', 'success');
+            } else {
+                logToElement(logId, '❌ 名稱匹配失敗', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
