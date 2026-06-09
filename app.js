@@ -686,10 +686,12 @@ function initAutocomplete() {
                 } 
             }, 400); 
         });
-
-        document.addEventListener('click', (e) => {
-            if (!input.contains(e.target) && !box.contains(e.target)) {
-                box.classList.add('hidden');
+         // Add this at the end of your script to close dropdowns when clicking outside
+        document.addEventListener('pointerdown', (e) => {
+            // Check if the click is outside the inputs or suggestion boxes
+            const isClickInside = e.target.closest('.input-class') || e.target.closest('.suggestion-box');
+            if (!isClickInside) {
+                document.querySelectorAll('.suggestion-box').forEach(box => box.classList.add('hidden'));
             }
         });
     });
