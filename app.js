@@ -589,7 +589,6 @@ function initAutocomplete() {
                 return;
             }
         }
-
         const clearDataset = () => {
             delete input.dataset.lat;
             delete input.dataset.lng;
