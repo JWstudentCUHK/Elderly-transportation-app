@@ -581,6 +581,13 @@ function initAutocomplete() {
         if (!input || !box) {
             console.warn(`⚠️ [INIT] Autocomplete input/box not found for ${item.id}`);
             return;
+        input.addEventListener('input', async (e) => {
+            const query = e.target.value.trim();
+            // 1. Hide box early if input is short
+            if (query.length < 2) {
+                box.classList.add('hidden');
+                return;
+            }
         }
 
         const clearDataset = () => {
